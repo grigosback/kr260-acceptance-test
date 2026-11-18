@@ -1,0 +1,62 @@
+[  10.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[  10.0s] bits checked=1.0313e+11  error cycles=0  injected=0  BER < 2.91e-11 (95% confidence, 0 errors)
+[  20.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[  20.0s] bits checked=2.0626e+11  error cycles=0  injected=0  BER < 1.45e-11 (95% confidence, 0 errors)
+[  30.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[  30.0s] bits checked=3.0939e+11  error cycles=0  injected=0  BER < 9.70e-12 (95% confidence, 0 errors)
+[  40.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[  40.0s] bits checked=4.1252e+11  error cycles=0  injected=0  BER < 7.27e-12 (95% confidence, 0 errors)
+[  50.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[  50.0s] bits checked=5.1565e+11  error cycles=0  injected=0  BER < 5.82e-12 (95% confidence, 0 errors)
+[  60.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[  60.0s] bits checked=6.1877e+11  error cycles=0  injected=0  BER < 4.85e-12 (95% confidence, 0 errors)
+[  70.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[  70.0s] bits checked=7.2191e+11  error cycles=0  injected=0  BER < 4.16e-12 (95% confidence, 0 errors)
+[  80.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[  80.0s] bits checked=8.2504e+11  error cycles=0  injected=0  BER < 3.64e-12 (95% confidence, 0 errors)
+[  90.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[  90.0s] bits checked=9.2816e+11  error cycles=0  injected=0  BER < 3.23e-12 (95% confidence, 0 errors)
+[ 100.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 100.0s] bits checked=1.0313e+12  error cycles=0  injected=0  BER < 2.91e-12 (95% confidence, 0 errors)
+[ 110.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 110.0s] bits checked=1.1344e+12  error cycles=0  injected=0  BER < 2.64e-12 (95% confidence, 0 errors)
+[ 120.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 120.0s] bits checked=1.2376e+12  error cycles=0  injected=0  BER < 2.42e-12 (95% confidence, 0 errors)
+[ 130.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 130.0s] bits checked=1.3407e+12  error cycles=0  injected=0  BER < 2.24e-12 (95% confidence, 0 errors)
+[ 140.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 140.0s] bits checked=1.4438e+12  error cycles=0  injected=0  BER < 2.08e-12 (95% confidence, 0 errors)
+[ 150.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 150.0s] bits checked=1.5469e+12  error cycles=0  injected=0  BER < 1.94e-12 (95% confidence, 0 errors)
+[ 160.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 160.0s] bits checked=1.6501e+12  error cycles=0  injected=0  BER < 1.82e-12 (95% confidence, 0 errors)
+[ 170.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 170.0s] bits checked=1.7532e+12  error cycles=0  injected=0  BER < 1.71e-12 (95% confidence, 0 errors)
+[ 180.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 180.0s] bits checked=1.8563e+12  error cycles=0  injected=0  BER < 1.62e-12 (95% confidence, 0 errors)
+[ 190.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 190.0s] bits checked=1.9595e+12  error cycles=0  injected=0  BER < 1.53e-12 (95% confidence, 0 errors)
+[ 200.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 200.0s] bits checked=2.0626e+12  error cycles=0  injected=0  BER < 1.45e-12 (95% confidence, 0 errors)
+[ 210.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 210.0s] bits checked=2.1657e+12  error cycles=0  injected=0  BER < 1.39e-12 (95% confidence, 0 errors)
+[ 220.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 220.0s] bits checked=2.2688e+12  error cycles=0  injected=0  BER < 1.32e-12 (95% confidence, 0 errors)
+[ 230.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 230.0s] bits checked=2.3720e+12  error cycles=0  injected=0  BER < 1.26e-12 (95% confidence, 0 errors)
+[ 240.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 240.0s] bits checked=2.4751e+12  error cycles=0  injected=0  BER < 1.21e-12 (95% confidence, 0 errors)
+[ 250.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 250.0s] bits checked=2.5782e+12  error cycles=0  injected=0  BER < 1.16e-12 (95% confidence, 0 errors)
+[ 260.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 260.0s] bits checked=2.6814e+12  error cycles=0  injected=0  BER < 1.12e-12 (95% confidence, 0 errors)
+[ 270.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 270.0s] bits checked=2.7845e+12  error cycles=0  injected=0  BER < 1.08e-12 (95% confidence, 0 errors)
+[ 280.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 280.0s] bits checked=2.8876e+12  error cycles=0  injected=0  BER < 1.04e-12 (95% confidence, 0 errors)
+[ 290.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 290.0s] bits checked=2.9907e+12  error cycles=0  injected=0  BER < 1.00e-12 (95% confidence, 0 errors)
+[ 300.0s] gtpowergood=1 tx_done=1 rx_done=1 prbs_locked=1 error_seen=0 rx_cdr_stable=1 userclk_tx=1 userclk_rx=1
+[ 300.0s] bits checked=3.0937e+12  error cycles=0  injected=0  BER < 9.70e-13 (95% confidence, 0 errors)
+measured line rate ~ 10.3124 Gb/s (expected 10.3125)
+RESULT: PASS  BER < 9.70e-13 (95% confidence, 0 errors)

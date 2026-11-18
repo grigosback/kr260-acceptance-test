@@ -1,0 +1,11 @@
+// Device-tree overlay for the kr260-prbs Kria app (same shape as AMD's k26-starter-kits overlay).
+// Compile on the board:  dtc -@ -I dts -O dtb -o kr260-prbs.dtbo kr260-prbs.dtsi
+/dts-v1/;
+/plugin/;
+
+&fpga_full {
+    #address-cells = <2>;
+    #size-cells = <2>;
+    firmware-name = "kr260-prbs.bit.bin";
+    resets = <&zynqmp_reset 116>, <&zynqmp_reset 117>, <&zynqmp_reset 118>, <&zynqmp_reset 119>;
+};

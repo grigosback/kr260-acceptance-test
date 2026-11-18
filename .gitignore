@@ -1,0 +1,8 @@
+# Vivado build trees and outputs
+fpga/*/build/
+fpga/*/out/
+.Xil/
+*.jou
+*.log
+*.str
+vivado_stdout.txt
