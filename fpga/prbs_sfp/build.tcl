@@ -44,7 +44,9 @@ set_property -dict [list \
     CONFIG.LOCATE_RX_USER_CLOCKING CORE \
 ] $gt
 set_property CONFIG.ENABLE_OPTIONAL_PORTS \
-    {txprbssel_in rxprbssel_in rxprbserr_out rxprbslocked_out rxprbscntreset_in txprbsforceerr_in} $gt
+    {txprbssel_in rxprbssel_in rxprbserr_out rxprbslocked_out rxprbscntreset_in txprbsforceerr_in
+     drpaddr_in drpclk_in drpdi_in drpen_in drpwe_in drpdo_out drprdy_out eyescanreset_in} $gt
+puts "GT optional ports: [get_property CONFIG.ENABLE_OPTIONAL_PORTS $gt]"
 generate_target all $gt
 create_ip_run $gt
 

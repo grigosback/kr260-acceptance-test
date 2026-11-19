@@ -6,3 +6,5 @@ fpga/*/out/
 *.log
 *.str
 vivado_stdout.txt
+__pycache__/
+*.pyc

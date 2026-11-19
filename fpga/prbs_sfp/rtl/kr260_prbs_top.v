@@ -1,3 +1,4 @@
+`default_nettype none
 `timescale 1ns / 1ps
 // KR260 SFP+ PRBS31 tester at 10.3125 Gb/s, built from free IP only
 // (GT Wizard + Zynq PS block design, no IBERT/ILA/VIO).
@@ -63,6 +64,9 @@ module kr260_prbs_top (
     reg  [63:0] snap_locked   = 64'd0;
     reg  [31:0] snap_errs     = 32'd0;
     reg  [31:0] snap_injected = 32'd0;
+    wire [9:0]  drp_addr;
+    wire [15:0] drp_di, drp_do;
+    wire        drp_en, drp_we, drp_rdy;
 
     prbs_regs u_regs (
         .aclk          (aclk),
@@ -88,7 +92,13 @@ module kr260_prbs_top (
         .status        (status_aclk),
         .snap_locked   (snap_locked),
         .snap_errs     (snap_errs),
-        .snap_injected (snap_injected)
+        .snap_injected (snap_injected),
+        .drp_addr      (drp_addr),
+        .drp_di        (drp_di),
+        .drp_en        (drp_en),
+        .drp_we        (drp_we),
+        .drp_do        (drp_do),
+        .drp_rdy       (drp_rdy)
     );
 
     // ------------------------------------------------------------------ transceiver
@@ -138,6 +148,14 @@ module kr260_prbs_top (
         .gtrefclk00_in                      (refclk),
         .qpll0outclk_out                    (),
         .qpll0outrefclk_out                 (),
+        .drpaddr_in                         (drp_addr),
+        .drpclk_in                          (aclk),
+        .drpdi_in                           (drp_di),
+        .drpen_in                           (drp_en),
+        .drpwe_in                           (drp_we),
+        .drpdo_out                          (drp_do),
+        .drprdy_out                         (drp_rdy),
+        .eyescanreset_in                    (ctrl[4]),
         .gthrxn_in                          (sfp_rx_n),
         .gthrxp_in                          (sfp_rx_p),
         .rxprbscntreset_in                  (rx_clear),
@@ -219,3 +237,4 @@ module kr260_prbs_top (
     assign sfp_led[0] = rxprbslocked;
     assign sfp_led[1] = err_seen;
 endmodule
+`default_nettype wire

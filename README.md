@@ -27,9 +27,10 @@ bought for learning high-speed serial design (10/25G Ethernet, GTH/GTY transceiv
 | 10 | PS GbE port 2 (`eth0`) | ⚠️ | Link 1000/full, DHCP OK; throughput run pending (was deferred during the soak) |
 | 11 | PL GbE ports 3 + 4 | ⏸ | Need a PL design with the RGMII MACs |
 | 12 | USB, all 4 ports | ✅ | Enumerated on `1-1.2`, `1-1.3`, `3-1.1`, `3-1.2` (USB 2 device, 18.9 MB/s read) |
-| 13 | USB 3 (5 Gb/s) | ⏸ | Needs a USB 3 device |
-| 14 | DisplayPort | ⏸ | Not tested yet |
-| 15 | **SFP+ 10.3125 Gb/s, PRBS31 loopback** | ✅ | **3.09e12 bits, 0 errors → BER < 9.7e-13 (95 % confidence)**; error injection 10/10 and 100/100 detected; measured line rate 10.3124 Gb/s ([log](results/sfp_prbs31_10g_20261119-0042.txt)) |
+| 13 | USB 3 (5 Gb/s) | ✅ | Kingston DataTraveler 3.0 enumerated at 5000M behind the USB5744 hub; 131 MB/s O_DIRECT read (above the ~40 MB/s USB 2 ceiling) |
+| 14 | DisplayPort | ✅ | Monitor shows the boot console and login prompt |
+| 15 | **SFP+ 10.3125 Gb/s, PRBS31 loopback** | ✅ | **3.09e12 bits, 0 errors → BER < 9.7e-13 (95 % confidence)** in the 5 min run ([log](results/sfp_prbs31_10g_20261119-0042.txt)); 1.27e13 bits, 0 errors (BER < 2.4e-13) while the eye scans ran; error injection 10/10 and 100/100 detected; measured line rate 10.3124 Gb/s |
+| 16 | **SFP+ statistical eye (DRP eye scan)** | ✅ | **0.84 UI** horizontal opening and -98..+100 codes vertical, error-free at a 1.9e-9 floor ([plot](results/sfp_eyescan_10g_20261119.png), [data](results/sfp_eyescan_10g_20261119.csv)) |
 
 Single-stream iperf3 RX tops out at ~823 Mb/s and UDP RX drops packets: that is one A53
 core saturating on receive, not the port (multi-stream reaches line rate with zero errors).
@@ -43,6 +44,7 @@ fpga/prbs_sfp/     SFP+ PRBS31 tester (free IP only) -- the one that works on BA
   app/             Kria app: device-tree overlay, shell.json, board-side prbs.py
   build.tcl        Vivado batch build -> out/kr260-prbs.bit.bin
   deploy.sh        copy + install the app on the board
+  plot_eye.py      eye-scan CSV -> log10(BER) heatmap (PC side)
 fpga/ibert_sfp/    IBERT version (needs a CORE/PRO licence: BASIC refuses to synthesise IBERT)
 linux/soak.sh      thermal + memory soak, run on the board
 results/           logs from the runs above
@@ -74,7 +76,9 @@ free IP and the transceiver's own PRBS logic:
   and the PS-PL interface properly.
 - SFP LEDs: one = checker locked, other = error seen since clear. User LEDs: heartbeat and
   transceiver reset done.
-- Uses 674 LUTs, 1091 FFs, 1 of 4 GTH channels; timing met (WNS +2.1 ns, WHS +0.03 ns).
+- The channel DRP is bridged to the register file, so Linux can read/write any GTHE4
+  attribute and run the transceiver's eye-scan engine (see below).
+- Uses under 1 % of the PL logic and 1 of 4 GTH channels; timing met (WNS +2.2 ns, WHS +0.03 ns).
 
 Pins come from [fpganinja/taxi](https://github.com/fpganinja/taxi/tree/main/src/eth/example/KR260/fpga)
 and [litex-boards](https://github.com/litex-hub/litex-boards/blob/master/litex_boards/platforms/xilinx_kr260.py),
@@ -93,6 +97,10 @@ sudo xmutil loadapp kr260-prbs
 sudo prbs.py status        # lock + counters
 sudo prbs.py inject 10     # proves the checker counts (expect 2 error cycles per injection)
 sudo prbs.py run 300       # 5 min soak: 0 errors over ~3.1e12 bits => BER < 1e-12
+sudo prbs.py eyescan /tmp/eye.csv 1 2 7 0   # fine 2D eye, ~9 min (2 4 5 0 = quick, ~40 s)
+
+# PC
+scp ubuntu@10.42.0.35:/tmp/eye.csv results/ && fpga/prbs_sfp/plot_eye.py results/eye.csv
 ```
 
 Each injected bit error shows up as 2 error cycles: PRBS-31 (x^31 + x^28 + 1) is
@@ -104,18 +112,43 @@ taps 28 and 31 bits later, which usually falls in the next 64-bit word.
 | Offset | Name | Access | Description |
 |---|---|---|---|
 | 0x00 | ID | RO | `0x50524253` ("PRBS") |
-| 0x04 | VERSION | RO | `0x00010000` |
-| 0x08 | CTRL | RW | [0] GT reset, [1] clear counters + checker, [2] inject toggle, [3] snapshot toggle |
+| 0x04 | VERSION | RO | `0x00020000` |
+| 0x08 | CTRL | RW | [0] GT reset, [1] clear counters + checker, [2] inject toggle, [3] snapshot toggle, [4] EYESCANRESET |
 | 0x0C | STATUS | RO | [0] gtpowergood [1] tx_done [2] rx_done [3] prbs_locked [4] error_seen [5] snap_ack [6] rx_cdr_stable [7] userclk_tx [8] userclk_rx |
 | 0x10/0x14 | LOCKED_LO/HI | RO | RX user-clock cycles while locked (× 64 = bits checked) |
 | 0x18 | ERR_CYCLES | RO | cycles with RXPRBSERR set |
 | 0x1C | INJECTED | RO | errors injected on TX |
+| 0x20 | DRP_CMD | WO | start a DRP access: [9:0] address, [31] 1 = write |
+| 0x24 | DRP_WDATA | RW | [15:0] data for the next DRP write |
+| 0x28 | DRP_STATUS | RO | [0] busy, [1] timeout, [31:16] last read data |
 
 Counters are snapshotted: flip CTRL[3], wait until STATUS[5] matches, then read.
+
+### Eye scan without IBERT
+
+![SFP+ statistical eye](results/sfp_eyescan_10g_20261119.png)
+
+The GTHE4 has a second, offset sampler for margin analysis. `prbs.py eyescan` drives it over
+DRP, following the procedure in corundum's `utils/xcvr_gthe4.c` (register addresses from
+corundum's `include/gt/gthe4_regs.h`; the DRP path is self-checked by decoding
+RX_DATA_WIDTH/RX_INT_DATAWIDTH back to 64/32):
+
+1. `ES_ERRDET_EN = 1`, all `ES_QUAL_MASK` = 0xFFFF, `ES_SDATA_MASK` set for the 32-bit
+   internal width, `ES_EYE_SCAN_EN = 1`.
+2. Alignment check at the centre (BER must be < 1 %, otherwise pulse EYESCANRESET).
+3. For every point: `ES_HORZ_OFFSET` (1/64 UI at full rate, ±32 = ±0.5 UI),
+   `RX_EYESCAN_VS_CODE`/`NEG_DIR`, set `ES_CONTROL = 1`, poll `ES_CONTROL_STATUS[0]`, read
+   `ES_ERROR_COUNT` and `ES_SAMPLE_COUNT`; bits = samples × 32 × 2^(1+prescale).
+4. The GT Wizard ties RXLPMEN = 0 (DFE), so each point is measured with `UT_SIGN` 0 and 1.
+   Each half only samples its own data condition, so the point's BER is the **average** of the
+   two half BERs. Summing the counts instead produces a fake low-BER plateau above and below
+   the eye, where one half is open and the other saturates at 65535 errors almost at once.
+
+The fine scan (65 × 125 points, prescale 7) takes about 9 minutes. The PRBS link keeps
+running during the scan (the offset sampler is separate from the data sampler).
 
 ## Next steps
 
 - DisplayPort, USB 3 device, `eth0` throughput (pending items above)
 - PL GbE ports via a PL RGMII design
-- GTH eye scan driven through DRP (no IBERT on BASIC)
 - 10GBASE-R PCS/MAC on the SFP+ and a link to the ConnectX-4 Lx over the 10G DAC

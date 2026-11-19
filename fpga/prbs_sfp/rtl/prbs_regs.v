@@ -15,6 +15,11 @@
 //  0x14 LOCKED_HI   RO  (bits checked = cycles * 64)
 //  0x18 ERR_CYCLES  RO  RX user-clock cycles in which RXPRBSERR was set (snapshot)
 //  0x1C INJECTED    RO  number of errors injected on TX since clear (snapshot)
+//  0x20 DRP_CMD     WO  write starts a GTHE4 channel DRP access: [9:0] address, [31] 1 = write
+//  0x24 DRP_WDATA   RW  [15:0] data for the next DRP write
+//  0x28 DRP_STATUS  RO  [0] busy, [1] timeout on last access, [31:16] data from last DRP read
+//
+// CTRL[4] drives EYESCANRESET.
 module prbs_regs (
     input  wire        aclk,
     input  wire        aresetn,
@@ -41,10 +46,27 @@ module prbs_regs (
     input  wire [31:0] status,        // already synchronised to aclk
     input  wire [63:0] snap_locked,   // quasi-static after snap_ack
     input  wire [31:0] snap_errs,
-    input  wire [31:0] snap_injected
+    input  wire [31:0] snap_injected,
+
+    // GTHE4 channel DRP, clocked by aclk
+    output reg  [9:0]  drp_addr,
+    output reg  [15:0] drp_di,
+    output reg         drp_en,
+    output reg         drp_we,
+    input  wire [15:0] drp_do,
+    input  wire        drp_rdy
 );
     assign s_axi_bresp = 2'b00;
     assign s_axi_rresp = 2'b00;
+
+    reg [15:0] drp_wdata   = 16'd0;
+    reg [15:0] drp_rdata   = 16'd0;
+    reg        drp_busy    = 1'b0;
+    reg        drp_timeout = 1'b0;
+    reg [9:0]  drp_timer   = 10'd0;
+    reg        drp_start   = 1'b0;
+    reg        drp_start_we = 1'b0;
+    reg [9:0]  drp_start_addr = 10'd0;
 
     // Write channel: accept address and data together
     always @(posedge aclk) begin
@@ -53,17 +75,62 @@ module prbs_regs (
             s_axi_wready  <= 1'b0;
             s_axi_bvalid  <= 1'b0;
             ctrl          <= 32'd0;
+            drp_wdata     <= 16'd0;
+            drp_start     <= 1'b0;
         end else begin
             s_axi_awready <= 1'b0;
             s_axi_wready  <= 1'b0;
+            drp_start     <= 1'b0;
             if (s_axi_bvalid && s_axi_bready)
                 s_axi_bvalid <= 1'b0;
             if (s_axi_awvalid && s_axi_wvalid && !s_axi_awready && !s_axi_bvalid) begin
                 s_axi_awready <= 1'b1;
                 s_axi_wready  <= 1'b1;
                 s_axi_bvalid  <= 1'b1;
-                if (s_axi_awaddr[7:2] == 6'h02 && s_axi_wstrb[0])
-                    ctrl[7:0] <= s_axi_wdata[7:0];
+                case (s_axi_awaddr[7:2])
+                    6'h02: if (s_axi_wstrb[0]) ctrl[7:0] <= s_axi_wdata[7:0];
+                    6'h08: if (!drp_busy) begin
+                               drp_start      <= 1'b1;
+                               drp_start_addr <= s_axi_wdata[9:0];
+                               drp_start_we   <= s_axi_wdata[31];
+                           end
+                    6'h09: drp_wdata <= s_axi_wdata[15:0];
+                    default: ;
+                endcase
+            end
+        end
+    end
+
+    // DRP master: one access at a time, 1023-cycle timeout
+    always @(posedge aclk) begin
+        if (!aresetn) begin
+            drp_en      <= 1'b0;
+            drp_we      <= 1'b0;
+            drp_addr    <= 10'd0;
+            drp_di      <= 16'd0;
+            drp_busy    <= 1'b0;
+            drp_timeout <= 1'b0;
+            drp_timer   <= 10'd0;
+        end else begin
+            drp_en <= 1'b0;
+            drp_we <= 1'b0;
+            if (drp_start && !drp_busy) begin
+                drp_en      <= 1'b1;
+                drp_we      <= drp_start_we;
+                drp_addr    <= drp_start_addr;
+                drp_di      <= drp_wdata;
+                drp_busy    <= 1'b1;
+                drp_timeout <= 1'b0;
+                drp_timer   <= 10'd0;
+            end else if (drp_busy) begin
+                drp_timer <= drp_timer + 1'b1;
+                if (drp_rdy) begin
+                    drp_rdata <= drp_do;
+                    drp_busy  <= 1'b0;
+                end else if (&drp_timer) begin
+                    drp_timeout <= 1'b1;
+                    drp_busy    <= 1'b0;
+                end
             end
         end
     end
@@ -83,13 +150,15 @@ module prbs_regs (
                 s_axi_rvalid  <= 1'b1;
                 case (s_axi_araddr[7:2])
                     6'h00:   s_axi_rdata <= 32'h50524253;
-                    6'h01:   s_axi_rdata <= 32'h00010000;
+                    6'h01:   s_axi_rdata <= 32'h00020000;
                     6'h02:   s_axi_rdata <= ctrl;
                     6'h03:   s_axi_rdata <= status;
                     6'h04:   s_axi_rdata <= snap_locked[31:0];
                     6'h05:   s_axi_rdata <= snap_locked[63:32];
                     6'h06:   s_axi_rdata <= snap_errs;
                     6'h07:   s_axi_rdata <= snap_injected;
+                    6'h09:   s_axi_rdata <= {16'd0, drp_wdata};
+                    6'h0A:   s_axi_rdata <= {drp_rdata, 14'd0, drp_timeout, drp_busy};
                     default: s_axi_rdata <= 32'hDEADBEEF;
                 endcase
             end
