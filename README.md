@@ -24,7 +24,7 @@ bought for learning high-speed serial design (10/25G Ethernet, GTH/GTY transceiv
 | 7 | Thermal soak, 20 min `stress-ng` on all cores | ✅ | 4/4 passed, no throttling (25/25 samples at 1333 MHz), peak 4.67 W, PS 36 °C, PL 33 °C |
 | 8 | `memtester 2500M 1` | ✅ | One full pass over 2.5 GB: all tests `ok`, 0 failures, exit 0 (53 min) |
 | 9 | PS GbE port 1 (`eth1`) | ✅ | 1000/full; iperf3 multi-stream RX 942 Mb/s, TX 941 Mb/s, bidir 933/937 Mb/s, 0 NIC errors |
-| 10 | PS GbE port 2 (`eth0`) | ⚠️ | Link 1000/full, DHCP OK; throughput run pending (was deferred during the soak) |
+| 10 | PS GbE port 2 (`eth0`) | ✅ | 1000/full; iperf3 TX 941 Mb/s, RX 937 Mb/s (1 stream) / 942 Mb/s (4 streams), bidir 933/929 Mb/s, 0 NIC errors |
 | 11 | PL GbE ports 3 + 4 | ⏸ | Need a PL design with the RGMII MACs |
 | 12 | USB, all 4 ports | ✅ | Enumerated on `1-1.2`, `1-1.3`, `3-1.1`, `3-1.2` (USB 2 device, 18.9 MB/s read) |
 | 13 | USB 3 (5 Gb/s) | ✅ | Kingston DataTraveler 3.0 enumerated at 5000M behind the USB5744 hub; 131 MB/s O_DIRECT read (above the ~40 MB/s USB 2 ceiling) |
@@ -32,8 +32,9 @@ bought for learning high-speed serial design (10/25G Ethernet, GTH/GTY transceiv
 | 15 | **SFP+ 10.3125 Gb/s, PRBS31 loopback** | ✅ | **3.09e12 bits, 0 errors → BER < 9.7e-13 (95 % confidence)** in the 5 min run ([log](results/sfp_prbs31_10g_20261119-0042.txt)); 1.27e13 bits, 0 errors (BER < 2.4e-13) while the eye scans ran; error injection 10/10 and 100/100 detected; measured line rate 10.3124 Gb/s |
 | 16 | **SFP+ statistical eye (DRP eye scan)** | ✅ | **0.84 UI** horizontal opening and -98..+100 codes vertical, error-free at a 1.9e-9 floor ([plot](results/sfp_eyescan_10g_20261119.png), [data](results/sfp_eyescan_10g_20261119.csv)) |
 
-Single-stream iperf3 RX tops out at ~823 Mb/s and UDP RX drops packets: that is one A53
-core saturating on receive, not the port (multi-stream reaches line rate with zero errors).
+On `eth1`, single-stream iperf3 RX reached only ~823 Mb/s and UDP RX dropped packets, while
+`eth0` later did 937 Mb/s single-stream on an idle board: receive is limited by one A53 core,
+not by the ports (both reach line rate multi-stream with zero errors).
 
 ## Repository layout
 
