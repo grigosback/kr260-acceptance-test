@@ -3,6 +3,10 @@
 Bring-up and acceptance testing of an AMD Kria **KR260 Robotics Starter Kit** (SK-KR260-G),
 bought for learning high-speed serial design (10/25G Ethernet, GTH/GTY transceivers).
 
+Everything here passed except the two PL-side GbE ports, which need a PL Ethernet design.
+The test scripts and the FPGA tester were written with [Claude Code](https://claude.com/claude-code)
+as part of an AI-assisted home lab.
+
 | Item | Value |
 |---|---|
 | Carrier | SCK-KR-G rev B, serial XFL1AXCIQLR4, made 2026-07-17 |
@@ -60,6 +64,10 @@ with NAT to the internet. Find the board with `ip neigh show dev enp0s20f0u3`.
 Serial console: micro-USB J4 enumerates as 4 FTDI ports; the Linux console is `/dev/ttyUSB1`
 at 115200 8N1 (`ttyUSB0` is JTAG).
 
+The board has no power switch: run `sudo poweroff`, wait for `reboot: Power down` on the
+console (or the PL heartbeat LED to stop), then unplug the 12 V supply. The fan may speed up
+after Linux halts; that is normal.
+
 ## SFP+ PRBS tester
 
 Vivado 2026.1 BASIC will not build IBERT
@@ -101,7 +109,7 @@ sudo prbs.py run 300       # 5 min soak: 0 errors over ~3.1e12 bits => BER < 1e-
 sudo prbs.py eyescan /tmp/eye.csv 1 2 7 0   # fine 2D eye, ~9 min (2 4 5 0 = quick, ~40 s)
 
 # PC
-scp ubuntu@10.42.0.35:/tmp/eye.csv results/ && fpga/prbs_sfp/plot_eye.py results/eye.csv
+scp ubuntu@10.42.0.79:/tmp/eye.csv results/ && fpga/prbs_sfp/plot_eye.py results/eye.csv
 ```
 
 Each injected bit error shows up as 2 error cycles: PRBS-31 (x^31 + x^28 + 1) is
@@ -150,6 +158,6 @@ running during the scan (the offset sampler is separate from the data sampler).
 
 ## Next steps
 
-- DisplayPort, USB 3 device, `eth0` throughput (pending items above)
-- PL GbE ports via a PL RGMII design
+- PL GbE ports 3 + 4 via a PL RGMII design (e.g. the
+  [taxi KR260 example](https://github.com/fpganinja/taxi/tree/main/src/eth/example/KR260))
 - 10GBASE-R PCS/MAC on the SFP+ and a link to the ConnectX-4 Lx over the 10G DAC

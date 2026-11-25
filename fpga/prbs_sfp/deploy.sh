@@ -14,8 +14,8 @@ ssh_opts=(-i "${KR260_SSH_KEY:-$HOME/.ssh/id_ed25519}")
 ssh "${ssh_opts[@]}" "$target" 'mkdir -p ~/kr260-prbs'
 scp "${ssh_opts[@]}" -q "$here/out/kr260-prbs.bit.bin" "$here/app/kr260-prbs.dtsi" \
     "$here/app/shell.json" "$here/app/prbs.py" "$target:kr260-prbs/"
+# The sudo password goes over ssh's stdin, so it never appears on a command line (ps).
 ssh "${ssh_opts[@]}" "$target" "cd ~/kr260-prbs && dtc -@ -q -I dts -O dtb -o kr260-prbs.dtbo kr260-prbs.dtsi && \
-  echo '$pw' | sudo -S -p '' sh -c 'mkdir -p /lib/firmware/xilinx/kr260-prbs && \
+  sudo -S -p '' sh -c 'mkdir -p /lib/firmware/xilinx/kr260-prbs && \
   cp kr260-prbs.bit.bin kr260-prbs.dtbo shell.json /lib/firmware/xilinx/kr260-prbs/ && \
-  install -m 755 prbs.py /usr/local/bin/prbs.py' && echo DEPLOYED && \
-  echo '$pw' | sudo -S -p '' xmutil listapps"
+  install -m 755 prbs.py /usr/local/bin/prbs.py && echo DEPLOYED && xmutil listapps'" <<<"$pw"
